@@ -1,0 +1,100 @@
+#4. Implement a Sudoku solver using backtracking and constraint propagation techniques.
+
+
+def find_empty(board):
+    # Constraint propagation: choose the cell
+    # with minimum possible values (MRV)
+    best_cell = None
+    best_options = None
+
+    for r in range(9):
+        for c in range(9):
+            if board[r][c] == 0:
+                options = get_options(board, r, c)
+
+                if best_options is None or len(options) < len(best_options):
+                    best_cell = (r, c)
+                    best_options = options
+
+    if best_cell is None:
+        return None, None
+
+    return best_cell, best_options
+
+
+def get_options(board, row, col):
+    used = set()
+
+    # Row constraint
+    for num in board[row]:
+        if num != 0:
+            used.add(num)
+
+    # Column constraint
+    for r in range(9):
+        if board[r][col] != 0:
+            used.add(board[r][col])
+
+    # 3x3 box constraint
+    start_row = (row // 3) * 3
+    start_col = (col // 3) * 3
+
+    for r in range(start_row, start_row + 3):
+        for c in range(start_col, start_col + 3):
+            if board[r][c] != 0:
+                used.add(board[r][c])
+
+    return [num for num in range(1, 10) if num not in used]
+
+
+def solve(board):
+    cell, options = find_empty(board)
+
+    # No empty cell means Sudoku is solved
+    if cell is None:
+        return True
+
+    row, col = cell
+
+    # Backtracking with constraint propagation
+    for num in options:
+        board[row][col] = num
+
+        if solve(board):
+            return True
+
+        # Undo choice if it leads to failure
+        board[row][col] = 0
+
+    return False
+
+
+def print_board(board):
+    for row in board:
+        print(" ".join(map(str, row)))
+
+
+# 0 represents an empty cell
+board = [
+    [5, 3, 0, 0, 7, 0, 0, 0, 0],
+    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+    [0, 9, 8, 0, 0, 0, 0, 6, 0],
+
+    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+    [4, 0, 0, 8, 0, 3, 0, 0, 1],
+    [7, 0, 0, 0, 2, 0, 0, 0, 6],
+
+    [0, 6, 0, 0, 0, 0, 2, 8, 0],
+    [0, 0, 0, 4, 1, 9, 0, 0, 5],
+    [0, 0, 0, 0, 8, 0, 0, 7, 9]
+]
+
+
+print("Sudoku Before Solving:")
+print_board(board)
+
+if solve(board):
+    print("\nSudoku After Solving:")
+    print_board(board)
+else:
+    print("\nNo solution exists.")

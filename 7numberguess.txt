@@ -1,0 +1,45 @@
+#B3. Design an intelligent agent that guesses a number using feedback (higher/lower). 
+
+
+# Intelligent Agent for Number Guessing
+# Feedback: Higher / Lower
+# Accepted inputs: h, l, c
+
+def intelligent_agent(low, high):
+    print(f"Think of a number between {low} and {high}.")
+    input("Press Enter when ready...")
+
+    attempts = 0
+
+    while low <= high:
+        guess = (low + high) // 2
+        attempts += 1
+
+        print(f"\nAgent guesses: {guess}")
+
+        feedback = input("Enter feedback (H:Higher/ L:Lower/ C:Correct): ").strip().lower()
+
+        if feedback in ("h", "higher","H"):
+            print(f"Feedback: higher")
+            low = guess + 1
+
+        elif feedback in ("l", "lower","L"):
+            print(f"Feedback: lower")
+            high = guess - 1
+
+        elif feedback in ("c", "correct","C"):
+            print(f"Feedback: correct")
+            print("\nNumber found!")
+            print("Number:", guess)
+            print("Attempts:", attempts)
+            return
+
+        else:
+            print("Invalid feedback! Enter h, l, or c.")
+            continue
+
+    print("No valid number found.")
+
+
+# Start the intelligent agent
+intelligent_agent(1, 100)

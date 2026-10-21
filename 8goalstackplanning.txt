@@ -1,0 +1,81 @@
+#B4. Implement Goal Stack Planning for solving the Blocks World problem and achieve a specified goal configuration.
+
+
+# Initial configuration
+initial = {
+    "A": "Table",
+    "B": "A",
+    "C": "Table"
+}
+
+# Goal configuration
+goal = {
+    "A": "Table",
+    "B": "C",
+    "C": "Table"
+}
+
+
+def display(state):
+    print("\nCurrent State:")
+    for block, position in state.items():
+        if position == "Table":
+            print(block, "is on Table")
+        else:
+            print(block, "is on", position)
+
+
+def clear_block(state, block, plan):
+    """Move everything on top of the given block to the table."""
+    for item, position in list(state.items()):
+        if position == block and item != block:
+            clear_block(state, item, plan)
+            state[item] = "Table"
+            plan.append(f"Move {item} to Table")
+
+
+def goal_stack_planning(initial_state, goal_state):
+    state = initial_state.copy()
+    plan = []
+
+    def achieve(block):
+        if state[block] == goal_state[block]:
+            return
+
+        # Clear the target if something is already on it.
+        if goal_state[block] != "Table":
+            target = goal_state[block]
+            for item, position in list(state.items()):
+                if item != block and position == target:
+                    achieve(item)
+                    state[item] = "Table"
+                    plan.append(f"Move {item} to Table")
+
+        # Clear the block itself if another block is on top of it.
+        clear_block(state, block, plan)
+
+        # Move the block to its goal position.
+        state[block] = goal_state[block]
+        plan.append(f"Move {block} to {goal_state[block]}")
+
+    # Achieve each goal in reverse order to keep the stack valid.
+    for block in reversed(list(goal_state.keys())):
+        achieve(block)
+
+    return state, plan
+
+
+final_state, plan = goal_stack_planning(initial, goal)
+
+print("Initial Configuration:")
+display(initial)
+
+print("\nGoal Configuration:")
+display(goal)
+
+print("\nPlan:")
+for i, action in enumerate(plan, 1):
+    print("Step", i, ":", action)
+
+print("\nFinal Configuration:")
+display(final_state)

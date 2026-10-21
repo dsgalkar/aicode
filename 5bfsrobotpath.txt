@@ -1,0 +1,64 @@
+#B1. Use BFS to solve a planning problem. Examples can be 8 puzzle problem, Robot path planning, Blocks world etc.
+
+from collections import deque
+
+# Grid: 0 = free cell, 1 = obstacle
+grid = [
+    [0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0]
+]
+
+start = (0, 0)
+goal = (4, 4)
+
+# BFS for robot path planning
+def bfs(start, goal):
+    queue = deque([(start, [start])])
+    visited = {start}
+
+    directions = [
+        (-1, 0),  # Up
+        (1, 0),   # Down
+        (0, -1),  # Left
+        (0, 1)    # Right
+    ]
+
+    while queue:
+        current, path = queue.popleft()
+
+        # Goal reached
+        if current == goal:
+            return path
+
+        r, c = current
+
+        for dr, dc in directions:
+            nr = r + dr
+            nc = c + dc
+
+            # Check valid position
+            if (0 <= nr < len(grid) and
+                0 <= nc < len(grid[0]) and
+                grid[nr][nc] == 0 and
+                (nr, nc) not in visited):
+
+                visited.add((nr, nc))
+                queue.append(((nr, nc), path + [(nr, nc)]))
+
+    return None
+
+
+# Solve planning problem
+path = bfs(start, goal)
+
+if path:
+    print("Robot Path using BFS:")
+    for i, position in enumerate(path):
+        print("Step", i, ":", position)
+
+    print("\nTotal steps:", len(path) - 1)
+else:
+    print("No path found.")

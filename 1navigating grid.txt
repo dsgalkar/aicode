@@ -1,0 +1,100 @@
+#1. Implement a model-based intelligent agent capable of navigating a grid environment with obstacles using internal state representation.
+class ModelBasedAgent:
+    def __init__(self, grid, start, goal):
+        self.grid = grid
+        self.position = start
+        self.goal = goal
+
+        # Internal state: stores cells already known to be blocked
+        self.known_obstacles = set()
+
+        # Movement directions: Up, Down, Left, Right
+        self.actions = [
+            (-1, 0),  # Up
+            (1, 0),   # Down
+            (0, -1),  # Left
+            (0, 1)    # Right
+        ]
+
+    def perceive(self):
+        """Observe obstacles around the current position."""
+        r, c = self.position
+
+        for dr, dc in self.actions:
+            nr, nc = r + dr, c + dc
+
+            if (0 <= nr < len(self.grid) and
+                0 <= nc < len(self.grid[0])):
+
+                if self.grid[nr][nc] == 1:
+                    self.known_obstacles.add((nr, nc))
+
+    def choose_action(self):
+        """Choose the best safe move toward the goal."""
+        r, c = self.position
+        gr, gc = self.goal
+
+        possible_moves = []
+
+        for dr, dc in self.actions:
+            nr, nc = r + dr, c + dc
+
+            if (0 <= nr < len(self.grid) and
+                0 <= nc < len(self.grid[0])):
+
+                if (nr, nc) not in self.known_obstacles:
+                    distance = abs(nr - gr) + abs(nc - gc)
+                    possible_moves.append(
+                        (distance, (nr, nc))
+                    )
+
+        if not possible_moves:
+            return None
+
+        # Select the move closest to the goal
+        possible_moves.sort()
+        return possible_moves[0][1]
+
+    def navigate(self):
+        """Navigate from start to goal."""
+        path = [self.position]
+
+        while self.position != self.goal:
+
+            # Perceive the environment
+            self.perceive()
+
+            # Select next action
+            next_position = self.choose_action()
+
+            if next_position is None:
+                print("Agent is blocked!")
+                return path
+
+            self.position = next_position
+            path.append(self.position)
+
+        return path
+
+
+# 0 = Free cell, 1 = Obstacle
+grid = [
+    [0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0]
+]
+
+start = (0, 0)
+goal = (4, 4)
+
+agent = ModelBasedAgent(grid, start, goal)
+
+path = agent.navigate()
+
+print("Path followed by agent:")
+print(path)
+
+print("\nKnown obstacles:")
+print(agent.known_obstacles)
